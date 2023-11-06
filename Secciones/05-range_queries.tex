@@ -1,0 +1,147 @@
+\section{Range Queries}
+
+Muchos problemas de estructuras de datos consisten en calcular una función acumulada sobre un rango de un arreglo, como la suma de elementos en el intervalo \([l, r]\).
+Es decir, si nuestro arreglo es \(a_1, \dots, a_n\), queremos calcular 
+
+\[
+f(l, r) = a_l + a_{l + 1} + \dots + a_r = \sum_{i = l}^r{a_i}
+\]
+
+En general, esto vale para cualquier \textbf{monoide}.
+Decimos que una operación binaria \(\oplus\) sobre un conjunto \(A\) es un monoide si es:
+
+\begin{itemize}
+\item Cerrada: si \(a, b \in A\), \(a \oplus b \in A\)
+\item Asociativa: \((a \oplus b) \oplus c = a \oplus (b \oplus c)\) para todos \(a, b, c \in A\)
+\item Elemento neutro: existe un (único) elemento \(e \in X\) tal que \(e \oplus a = a \oplus e = a\) para todo \(a \in A\)
+\end{itemize}
+
+Hay varios ejemplos comunes de monoides, incluyendo la suma, el producto, máximo y mínimo, entre otros. 
+De hecho, ambas definiciones para el tamaño de un nodo eran monoides.
+
+De manera similar al tamaño, definimos para cada nodo \(x\) la función acumulada en su subárbol como
+
+\[
+f(x) = f(x_L) \oplus x_a \oplus f(x_R)
+\]
+
+donde \(f\) de un nodo nulo es la identidad del monoide \(\oplus\), y \(x_a \in A\) es algún valor asociado a \(x\).
+En el caso del tamaño, \(x_a\) era la frecuencia del valor.
+
+Para usar un Treap para resolver esta clase de problemas, insertamos las claves \(1, \dotsm, n\), cada una con su valor original. 
+De esta forma, computar \(f(l, r)\) se reduce a dos llamados de Split(), para obtener los elementos con clave en \([l, r]\), y la respuesta es la función acumulada de la raíz:
+
+\vbox{
+\begin{minted}{c++}
+int query(Treap &root, int l, int r) {
+    Treap left, middle, right;
+    tie(left, right) = split(root, r);
+    tie(left, middle) = split(left, l - 1);
+    
+    int ans = f(middle);
+    root = merge(merge(left, middle), right);
+    return ans;
+}
+\end{minted}
+}
+
+\subsection{CSES - Dynamic Range Sum Queries}
+\label{sec:dynamic-range-sum-queries}
+\problema{
+\textbf{Dynamic Range Sum Queries:}
+
+Tenemos una lista con números \(a_1, \dots, a_n\), y queremos responder \(q\) consultas del tipo: 
+\begin{enumerate}
+    \item Cambiar \(a_k\) por \(x\)
+    \item Computar la suma en \([l, r]\)
+\end{enumerate}
+
+\url{https://cses.fi/problemset/task/1648}
+}
+
+Como la suma es un monoide (cuya identidad es cero), ya sabemos computar sumas en rango de manera eficiente.
+Para cambiar el valor en una posición, particionamos el árbol en tres con respecto a \(k\), actualizamos el valor, y juntamos todo de nuevo.
+
+\vbox{
+\begin{minted}{c++}
+void update(Treap &root, int k, int x) {
+    Treap left, middle, right;
+    tie(left, right) = split(root, k);
+    tie(left, middle) = split(left, k - 1);
+
+    middle->value = x;
+    root = merge(merge(left, middle), right);
+}
+\end{minted}
+}
+
+Tanto Update() como Query() funcionan en \(\mathcal{O}(\lg n)\), entonces la complejidad de la solución es \(\mathcal{O}(n + q \lg n)\). 
+
+\subsection{CSES - Range Updates and Sums}
+
+\problema{
+\textbf{Range Updates and Sums:} 
+
+Tenemos una lista de números \(a_1, \dots, a_n\), y queremos responder \(q\) consultas del tipo:
+\begin{enumerate}
+\item Sumarle \(x\) a cada elemento en \([l, r]\)
+\item Reemplazar por \(x\) cada elemento en \([l, r]\)
+\item Computar la suma en \([l, r]\)
+\end{enumerate}
+
+\url{https://cses.fi/problemset/task/1735/}
+}
+
+Notar que, si directamente aplicáramos las operaciones de tipos 1. y 2. apenas llegan,
+la cantidad de posiciones a cambiar es \(\mathcal{O}(n \cdot q)\), que son demasiadas operaciones para las cotas del problema.
+En su lugar, vamos a marcar que tenemos que actualizar un subárbol, e ir propagando las actualizaciones cuando visitamos un nodo (un truco conocido como \textit{Lazy Propagation}).
+
+Para poder hacer Lazy Propagation, necesitamos:
+\begin{itemize}
+    \item Una forma de computar la función acumulada de un nodo, incluso si tiene actualizaciones pendientes
+    \item Una forma de componer actualizaciones
+    \item Una forma de aplicar las actualizaciones pendientes a un nodo, y propagarlas a sus hijos
+\end{itemize}
+
+En cada nodo, vamos a guardar tres valores adicionales, que representan las actualizaciones que tiene pendientes:
+un entero diciendo cuánto hay que añadirle al subárbol (\texttt{lazyAdd}), un entero diciendo cuánto hay que asignarle a cada nodo del subárbol (\texttt{lazySet}), y un booleano que dice si hay que hacer una asignación o no. 
+Este último parámetro es necesario, ya que no existe una ``identidad'' para asignar valores.
+
+Para computar la función acumulada de un nodo, tenemos dos casos, dependiendo de si hay o no una actualización de reemplazo pendiente.
+
+Si tenemos que realizar una asignación:
+\[
+f(x) = |x| \cdot (x \member{lazyAdd} + x \member{lazySet})
+\]
+
+Caso contrario, es igual a:
+\[
+f(x) = f(x_L) + f(x_R) + x_a + |x| \cdot x \member{lazyAdd}
+\]
+
+Para componer con una actualización de suma, le sumamos la cantidad a \texttt{lazyAdd}.
+Por otro lado, si queremos componer con un reemplazo, tenemos que reemplazar \texttt{lazyAdd} por cero, y asignarle a \texttt{lazySet} el nuevo valor.
+
+Finalmente, para propagar actualizaciones, el valor del nodo es \(x \member{lazySet} + x \member{lazyAdd} \) si hay que asignar, y \(x_a + x \member{lazyAdd}\) si no.
+
+De manera similar al problema anterior, para hacer una actualización hay que buscar el rango afectado con Split(), y componer con la nueva actualización. 
+Solo es necesario propagar las actualizaciones necesarias cuando visitamos un nodo en Split() o Merge():
+
+\begin{minted}{c++}
+pair<Treap, Treap> split(Treap root, tint k) {
+  if (root == nullptr) return {nullptr, nullptr};
+
+  propagate(root);
+  if (root->key <= k) // ...
+}
+
+Treap merge(Treap left, Treap right) {
+  if (left == nullptr) return right;
+  if (right == nullptr) return left;
+
+  propagate(left), propagate(right);
+  if (left->priority > right->priority) // ...
+}
+\end{minted}
+
+Como sólo hacemos una cantidad constante de operaciones adicionales en Split() y Merge(), la complejidad de este problema también es \(\mathcal{O}(n + q \lg n)\).

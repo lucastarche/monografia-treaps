@@ -1,0 +1,30 @@
+\begin{center}
+\begin{tikzpicture}[
+level 1/.style={sibling distance=2in},
+level 2/.style={sibling distance=1in},
+level 3/.style={sibling distance=0.5in},
+every node/.style={
+    circle split,
+    draw
+}
+]
+
+\node { 26 \nodepart{lower} 7 }
+    child {
+        node { 17 \nodepart{lower} 4 }
+        child { node { 4 \nodepart{lower} 1 } }
+        child {
+            node { 21 \nodepart{lower} 2 }
+            child { node { 19 \nodepart{lower} 1} }
+            child [missing]
+        }
+    }
+    child {
+        node { 41 \nodepart{lower} 2 }
+        child { node { 30 \nodepart{lower} 1 } }
+        child [missing]
+    }
+;
+\end{tikzpicture}
+\captionof{figure}{Clave y tamaño en un Order Statistics Tree}
+\end{center}

@@ -1,0 +1,132 @@
+\section{Treap Implícito}
+
+Vamos a ver un truco particularmente útil para manipular secuencias y cadenas,
+conocido como ``Treap Implícito'' o ``Treap con Claves Implícitas''. 
+A diferencia de los problemas que vimos hasta ahora, los tres problemas a continuación no
+pueden resolverse usando alguna variante de Segment Tree.
+
+Un patrón clásico en problemas es añadir consultas de cortar/pegar y/o invertir rangos,
+para evitar usar un Segment Tree, como es el caso de \nameref{sec:reversals-and-sums}.
+En su lugar, debe aumentarse un ABB autobalanceado, siendo Treap y Splay Tree
+los dos más populares para competencias.
+
+\subsection{CSES - Cut and Paste}
+
+\problema{
+\textbf{Cut and Paste:} 
+
+Tenemos una cadena \(S = s_1 \dots s_n\), y vamos a cortar una subcadena \(s_l \dots s_r\) y pegarla al final \(q\) veces.
+
+Imprimir la cadena después de todas las operaciones.
+
+\url{https://cses.fi/problemset/task/2072}
+}
+
+Notar que, luego de una operación, pasamos de la cadena \(S = s_1 \dots s_n\) a la cadena \(S' = s_1 \dots s_{l - 1} s_{r + 1} \dots s_n s_l \dots s_r\).
+Es decir, partimos \(S\) en tres porciones, y las pegamos en una nueva cadena. 
+Uno querría insertar los pares índice, carácter en un Treap, de manera similar que para sumas, 
+y usar Split() y Merge() para cortar y pegar, respectivamente.
+
+Lamentablemente, esto no funciona, porque luego de una operación, el árbol podría dejar de tener la propiedad de búsqueda binaria, así como que las claves ya no representen los índices:
+
+\input{Diagramas/ejemplo_roto_cut_and_paste}
+
+Queremos alguna forma de actualizar todos los índices cuando cortamos el árbol,
+pero sin tener que recorrer los nodos uno por uno.
+Para evitar esto, la idea va a ser no guardarnos las claves en el árbol,
+sino deducirlas en el momento con la estructura del árbol.
+
+Definimos la \textit{clave implícita} de un nodo como su posición en el inorder de recorrer el árbol desde la raíz.
+Aunque no estén almacenados explícitamente en cada nodo, los podemos obtener a medida que vamos recorriendo 
+el árbol para hacer Split(). 
+Hay que modificar ligeramente Split() para que funcione con claves implícitas:
+
+\vbox{
+\begin{minted}{c++}
+pair<Treap, Treap> split(Treap root, int k) {
+ if (root == nullptr) return {nullptr, nullptr};
+  
+ int key = size(root->left) + 1;
+ Treap left, right;
+ if (key <= k) {
+  tie(left, right) = split(root->right, k - key);
+  root->right = left;
+  evaluate(root);
+  return {root, right};
+ } else {
+  tie(left, right) = split(root->left, k);
+  root->left = right;
+  evaluate(root);
+  return {left, root};
+ }
+}
+\end{minted}
+}
+
+Como los nodos no tienen claves, no hay que mantener su orden, entonces podemos pegar árboles que, conceptualmente, no están en órden. 
+Esta propiedad hace que la implementación sea lo que habíamos pensado originalmente:
+
+\vbox{
+\begin{minted}{c++}
+void update(Treap &root, int l, int r){
+  Treap left, middle, right;
+  tie(left, right) = split(root, r);
+  tie(left, middle) = split(left, l - 1);
+  root = merge(merge(left, right), middle);
+}
+\end{minted}
+}
+
+Finalmente, imprimir el resultado es concatenar los caracteres de los nodos en recorrido inorder, y la complejidad total es \(\mathcal{O}(n + q \lg n)\).
+
+\subsection{CSES - Substring Reversals}
+\problema{
+\textbf{Substring Reversals:} 
+
+Tenemos una cadena \(S = s_1 \dots s_n\), y vamos a dar vuelta subcadenas \(s_l \dots s_r\) un total de \(q\) veces.
+
+Imprimir la cadena después de todas las operaciones.
+
+\url{https://cses.fi/problemset/task/2073}
+}
+
+Vamos a armar un Treap Implícito con los caracteres, de la misma forma que en el problema anterior. 
+Notar que, si no fuera implícito, podría romperse el orden de las claves luego de una actualización.
+
+Recordemos que, para invertir un árbol binario, intercambiamos los hijos izquierdo y derecho de la raíz, y procedemos recursivamente.
+Además, invertir dos veces un árbol nos devuelve el árbol original.
+Esto nos da la idea de usar Lazy Propagation para procesar rápido las actualizaciones, sin tener que recorrer todos los nodos afectados.
+
+Sólo hace falta guardarse un booleano adicional por nodo,
+que nos indica si hay una actualización pendiente o no.
+El resultado es sorprendente porque, si omitimos imprimir la respuesta, podemos dar vuelta una subcadena en \(\mathcal{O}(\lg n)\).
+Obtener la cadena final es cuestión de recorrer el árbol en recorrido inorder, propagando actualizaciones a medida que visitamos los nodos.
+
+\input{Diagramas/ejemplo_invertir_binary_tree}
+
+\subsection{CSES - Reversals and Sums}
+\label{sec:reversals-and-sums}
+
+\problema{
+\textbf{Reversals and Sums:} 
+
+Tenemos una lista de números \(a_1 \dots a_n\), y queremos responder \(q\) consultas del tipo:
+
+\begin{enumerate}
+\item Dar vuelta el rango \([l, r]\)
+\item Computar la suma en el rango \([l, r]\)
+\end{enumerate}
+
+\url{https://cses.fi/problemset/task/2074}
+}
+
+La solución a este problema es casi inmediata, sólo tenemos que combinar la respuesta al problema anterior con la solución a \nameref{sec:dynamic-range-sum-queries}.
+Esto es fácil de hacer, ya que no cambia la suma de un subárbol al invertirlo.
+
+De este problema, podemos notar lo siguiente:
+\begin{itemize}
+\item Podríamos haber usado claves implícitas para resolver los problemas de Range Queries.
+\item Es fácil añadirle consultas de cortar/pegar o invertir rangos a un problema de Range Queries, si tenemos una solución con Treap.
+\end{itemize}
+
+De hecho, podríamos haber resuelto el problema ``Range Updates, Sums and Reversals'' de la misma forma.

@@ -1,0 +1,102 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+
+\usepackage{caratula}
+\usepackage{caption}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{minted}
+\usepackage{tikz}
+\usepackage[most]{tcolorbox}
+\usepackage{multicol}
+\usepackage[a4paper, total={7.25in, 10in}]{geometry}
+
+% anexo-codigo: se añaden todos los .cpps al PDF
+% anexo-links: se añade un link a cada problema
+\def\versionanexo{anexo-codigo}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=blue,      
+    urlcolor=blue,
+    pdftitle={Treaps},
+    pdfpagemode=FullScreen,
+    }
+
+\captionsetup[figure]{hypcap=false}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\setcounter{tocdepth}{2}
+
+\usetikzlibrary{shapes.multipart}
+\usetikzlibrary {arrows.meta}
+
+\newtcolorbox{Pbox}{
+enhanced,
+colback=white,
+}
+
+\newcommand\problema[1]{\begin{Pbox}#1\end{Pbox}}
+\newcommand\member[1]{\!\!\rightarrow\!\! \text{#1}}
+
+\titulo{Treaps}
+\subtitulo{Aumentando Árboles de Búsqueda Binaria para Competencias}
+\materia{Programación Competitiva II}
+\submateria{Lucas Hernán Tarche}
+\integrante{}{}{}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\begin{multicols*}{2}
+
+\input{Secciones/01-introduccion}
+
+\input{Secciones/02-preliminares}
+
+\input{Secciones/03-treap}
+
+\input{Secciones/04-aumentando_arboles_binarios}
+
+\input{Secciones/05-range_queries}
+
+\input{Secciones/06-treap_implicito}
+
+\input{Secciones/07-persistencia}
+
+\input{Secciones/08-conclusion}
+
+\end{multicols*}
+
+\newpage
+\appendix
+
+\section{Anexo}
+
+\input{Secciones/\versionanexo}
+
+\section{Bibliografía}
+
+\begin{itemize}
+\item Randomized Search Trees - Raimund Seidel y Cecilia R. Aragon: \url{https://faculty.washington.edu/aragon/pubs/rst96.pdf}
+\item Randomized Binary Search Trees - Conrado Martínez y Salvador Roura: \url{https://dl.acm.org/doi/10.1145/274787.274812}
+\item Fast Set Operations Using Treaps - Guy E. Blelloch y Margaret Reid-Miller: \url{https://www.cs.cmu.edu/~scandal/papers/treaps-spaa98.pdf}
+\item Introduction to Algorithms - Cormen, Leiserson, Rivest y Stein
+\item Persistent / Immutable Treaps - Blog de Ankit Sultana: \url{https://ankitsultana.com/2021/03/29/persistent-treaps.html}
+\item Página sobre Treaps de CP-Algorithms: \url{https://cp-algorithms.com/data_structures/treap.html}
+\item AlgorithmsThread 9: Treaps! - Video de SecondThread: 
+\url{https://www.youtube.com/watch?v=6x0UlIBLRsc}
+\item Training Camp Argentina 2022 - Charla de Marcos Kolodny: \url{https://www.youtube.com/watch?v=LAVptsKXbjI}
+\end{itemize}
+
+\end{document}

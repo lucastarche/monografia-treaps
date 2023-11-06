@@ -1,0 +1,13 @@
+\section{Conclusión}
+
+Logramos resolver una gran variedad de problemas con Treap, y es una estructura que puede ser útil tener en el \textit{notebook} del equipo para la ICPC.
+Sorprendentemente, todas las técnicas vistas pueden ser aplicadas a cualquier árbol balanceado que tenga implementado los métodos Split() y Merge().
+Dado que el Treap es no determinista, hay equipos y participantes que utilizan en su lugar estructuras amortizadas, siendo las más populares Splay Tree y 2-3 Trees,
+que también son más simples de implementar que una estructura determinista.
+
+Hay otras técnicas de Segment Trees, como ``Segment Tree Beats'' para sumas y cambiar a máximo en rango, que también aplican al Treap, como en el siguiente problema: \url{https://codeforces.com/gym/102787/problem/D}, 
+o mantener el hash polinómico / \textit{rolling hash} de una cadena, como en \url{https://codeforces.com/gym/102787/problem/B}.
+
+Aunque pareciera que todo problema de Segment Tree pueda resolverse con Treap,
+la constante del Treap (o cualquier otro árbol binario balanceado) puede ser muy grande,
+y que el código sea más largo puede llevar a bugs en competencias.

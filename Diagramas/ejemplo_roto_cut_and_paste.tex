@@ -1,0 +1,37 @@
+\begin{center}
+\begin{tikzpicture}[
+sibling distance=0.5in,
+every node/.style={
+    circle split,
+    draw
+}
+]
+
+\node { R \nodepart{lower} 2 }
+    child { node { T \nodepart{lower} 1 } }
+    child {
+        node { A \nodepart{lower} 4 }
+        child { node { E \nodepart{lower} 3 } }
+        child { node { P \nodepart{lower} 5 } }
+    }
+;
+\end{tikzpicture}
+\begin{tikzpicture}[
+sibling distance=0.5in,
+every node/.style={
+    circle split,
+    draw
+}
+]
+
+\node { R \nodepart{lower} 2 }
+    child { node { T \nodepart{lower} 1 } }
+    child {
+        node { E \nodepart{lower} 3 }
+        child { node { P \nodepart{lower} 5 } }
+        child { node { A \nodepart{lower} 4 } }
+    }
+;
+\end{tikzpicture}
+\captionof{figure}{Intentando hacer ``TREAP'' \(\to\) ``TRPEA''}
+\end{center}

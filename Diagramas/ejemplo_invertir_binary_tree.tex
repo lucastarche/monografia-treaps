@@ -1,0 +1,51 @@
+\begin{center}
+\begin{tikzpicture}[
+sibling distance=0.5in,
+every node/.style={
+    circle,
+    draw
+}
+]
+\node[fill=lightgray] { R \nodepart{lower} 2 }
+    child { node { T } }
+    child {
+        node { A }
+        child { node { E } }
+        child { node { P  } }
+    }
+;
+\end{tikzpicture}
+\begin{tikzpicture}[
+sibling distance=0.5in,
+every node/.style={
+    circle,
+    draw
+}
+]
+\node { R \nodepart{lower} 2 }
+    child {
+        node[fill=lightgray] { A }
+        child { node { E } }
+        child { node { P  } }
+    }
+    child { node[fill=lightgray] { T } }
+;
+\end{tikzpicture}
+\begin{tikzpicture}[
+sibling distance=0.5in,
+every node/.style={
+    circle,
+    draw
+}
+]
+\node { R \nodepart{lower} 2 }
+    child {
+        node { A }
+        child { node[fill=lightgray] { P  } }
+        child { node[fill=lightgray] { E } }
+    }
+    child { node { T } }
+;
+\end{tikzpicture}
+\captionof{figure}{Dar vuelta ``TREAP'' \(\to\) ``PAERT''}
+\end{center}
